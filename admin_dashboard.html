@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #c9c1c9;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .card {
+            background-color: #b79dbc;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #8b5b93;
+            border-color: #c570d4;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .btn-primary:hover {
+            background-color: #8b5b93;
+            border-color: #8b5b93;
+        }
+
+        .btn-success,
+        .btn-danger {
+            background-color: #9f7cca;
+            border-color: #705b89;
+            color: black;
+            border-radius: 8px;
+        }
+
+        .table-secondary {
+            background-color: #EDE7F6 !important;
+        }
+
+        a {
+            color: #673AB7;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #512DA8;
+        }
+
+        .top-bar {
+            background-color: #603d60;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .top-bar a {
+            color: white;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+
+        .top-bar a:hover {
+            color: #D1C4E9;
+        }
+
+        .card-header {
+            background-color: #a77fae;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container text-center mt-4">
+        <h1 class="fw-bold text-dark">Admin Dashboard</h1>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show mt-3" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <div class="top-bar d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="{{ url_for('admin_dashboard') }}">Home</a>
+                <a href="{{ url_for('quiz_dashboard') }}">Quiz</a>
+                <a href="{{ url_for('admin_summary') }}">Summary</a>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+            <form action="{{ url_for('admin_search') }}" method="GET" class="d-flex">
+                <input type="text" name="query" class="form-control" placeholder="Search..." value="{{ search_query }}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <div class="container-horizontal3">
+            {% if results %}
+            <h2 class="container-horizontal3">Search Results</h2>
+
+            <table>
+                <tr>
+                    <th>Details</th>
+                </tr>
+                {% for result in results %}
+
+                <tr>
+                    <td>{{ result.table }} - {{ result.id }} - {{ result.details }}</td>
+                </tr>
+
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
+
+
+        <div class="container-horizontal2">
+            <div class="container mt-4">
+                <h2 class="text-dark">Subjects</h2>
+                <div class="d-flex gap-3 flex-wrap mb-3">
+                    <a href="{{ url_for('add_subject') }}" class="btn btn-primary">Add Subject</a>
+                    <a href="{{ url_for('add_chapter') }}" class="btn btn-primary">Add Chapter</a>
+                </div>
+
+                {% for subject in subjects %}
+                <div class="card mb-4 p-3">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">{{ subject.name }}</h4>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('add_chapter') }}" class="btn btn-sm btn-success">Add Chapter</a>
+                            <a href="{{ url_for('edit_subject', subject_id=subject.id) }}"
+                                class="btn btn-sm btn-success">Edit Subject</a>
+                            <form action="{{ url_for('delete_subject', subject_id=subject.id) }}" method="POST"
+                                onsubmit="return confirm('Are you sure?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete Subject</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <table class="table table-hover">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Chapter Name</th>
+                                    <th>Description</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for chapter in subject.chapters %}
+                                <tr>
+                                    <td>{{ chapter.name }}</td>
+                                    <td>{{ chapter.description }}</td>
+                                    <td>
+                                        <a href="{{ url_for('edit_chapter', chapter_id=chapter.id, subject_id=subject.id) }}"
+                                            class="btn btn-sm btn-success">Edit Chapter</a>
+                                        <form action="{{ url_for('delete_chapter', chapter_id=chapter.id) }}"
+                                            method="POST" onsubmit="return confirm('Are you sure?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">Delete Chapter</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
